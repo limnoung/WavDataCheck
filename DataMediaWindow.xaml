@@ -120,7 +120,9 @@
             <Button Width="200" Height="60" x:Name="endZipBtn" Click="endZipBtn_Click">마무리(압축하기)</Button>
         </StackPanel>
         <StackPanel Grid.Row="9" HorizontalAlignment="Right" Margin="0,-230,300,0">
-            <Button Width="200" Height="60" x:Name="saveAndCheckBtn" Click="saveAndCheckBtn_Click">정렬 및 저장 후 다른 파일 검수</Button>
+            <Button Width="200" Height="60" x:Name="saveAndCheckBtn" Click="saveAndCheckBtn_Click">
+                <TextBlock Text="정렬 및 저장 후 다른 파일 검수&#xa;(압축하지 않음. 검수전용)" TextWrapping="Wrap"/>
+            </Button>
         </StackPanel>
     </Grid>
 </Window>

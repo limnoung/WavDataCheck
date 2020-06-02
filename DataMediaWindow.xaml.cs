@@ -68,9 +68,9 @@ namespace WavDataCheck
         }
         private MediaPlayer myMediaPlayer;
 
-        private int currentJobRow = 0; // 현재 작업하는 행
-        private int fullJobCount = 0; // 전체 파일 수(고정)
-        private int currentIndex = 0; // 현재 보고 있는 파일
+        private int currentJobRow; // 현재 작업하는 행
+        private int fullJobCount; // 전체 파일 수(고정)
+        private int currentIndex; // 현재 보고 있는 파일
         public int CurrentIndex
         {
             get { return currentIndex; }
@@ -99,17 +99,26 @@ namespace WavDataCheck
         private DataMediaWindow()
         {
             InitializeComponent();
+            fullJobCount = 0;
             currentJobRow = 0;
             currentIndex = 0;
             realFileCount = 0;
             myMediaPlayer = new MediaPlayer();
+        }
+        ~DataMediaWindow()
+        {
+            //최적화 test
+            myMediaPlayer = null; 
+            ticks = null;
         }
         public void WindowStart()
         {
             showWin = ShowDataWindow.GetShowDataWindow(myFileRep.MyDataTable);
             showWin.Show();
 
-            saveAndCheckBtn.Content += "\n(압축하지 않음. 검수전용)"; //버튼 컨텐츠
+            //검수 할때마다 한 줄 식 추가 되는 문제 : xaml 안에 직접 넣음
+            //saveAndCheckBtn.Content += "\n(압축하지 않음. 검수전용)"; //버튼 컨텐츠
+
             prevIndex = -1; // 이전 인덱스 초기값. -1로 하여 거절하게 만듬
             scrollViewFlag = false; //스크롤 뷰 초기값
 
@@ -175,6 +184,13 @@ namespace WavDataCheck
 
         public void WindowStatusUpdate(int jobIndex)
         {
+            // 최적화 test
+            if (myMediaPlayer.Source != null)
+            {
+                myMediaPlayer.Close();
+            }
+
+
             fullFileTxt.Text = realFileCount.ToString(); // 전체 파일 개수
 
             indexTxt.Text = (jobIndex + 1).ToString(); // 인덱스
@@ -350,7 +366,7 @@ namespace WavDataCheck
         {
             progressSlider.Maximum = myMediaPlayer.NaturalDuration.TimeSpan.TotalMilliseconds;
             totalTimeTxt.Text = myMediaPlayer.NaturalDuration.TimeSpan.ToString("mm':'ss':'ff");
-            ticks.Interval = TimeSpan.FromMilliseconds(1);
+            ticks.Interval = TimeSpan.FromMilliseconds(10);
             ticks.Tick += ticks_Tick;
             ticks.Start();
         }
@@ -684,11 +700,13 @@ namespace WavDataCheck
 
         private void saveAndCheckBtn_Click(object sender, RoutedEventArgs e)
         {
-            // 검증 시 데이터 값이 초기화 되지 않는 현상
+            // 수정자 : 임희영, 일시 : 20.06.02
+            // 증상 : 검증 시 데이터 값이 초기화 되지 않는 현상
+            // 내용 : 변수들의 값을 0으로 초기화 해줌
             currentIndex = 0;
             fullJobCount = 0;
             currentJobRow = 0;
-            // END
+            
 
             JobEventHandler.EndingJob(myFileRep.MyDataTable, mediaFilePath);
             MyFileRep.SortDataTable("fileName");
